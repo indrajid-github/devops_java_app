@@ -88,7 +88,11 @@ pipeline{
                 script
                 {
                     //Calling shared library
-                    staticCodeAnalysis()
+                    withSonarQubeEnv(credentialsId: 'jenkins-sonar-token') 
+                    {
+                         staticCodeAnalysis()
+                    }
+                   
                 }
             }
         }
