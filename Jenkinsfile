@@ -9,10 +9,18 @@ pipeline{
     {
         maven 'maven3'
     }
+    parameters
+    {
+        choice(name: 'activity', choices: ['proceed', 'stop'], description: 'Choose proceed/stop')
+    }
     stages
     {
         stage("Cleanup workspace")
         {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
             steps
             {
                 script
@@ -23,6 +31,10 @@ pipeline{
         }
         stage("Pulling SC from GIT")
         {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
             steps
             {
                 script
@@ -37,6 +49,10 @@ pipeline{
         }
         stage("unit test maven")
         {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
             steps
             {
                 script
@@ -48,12 +64,31 @@ pipeline{
         }
         stage("Integration test maven")
         {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
             steps
             {
                 script
                 {
                     //Calling shared library
                     mvnIntegration()
+                }
+            }
+        }
+        stage("static code analysis: sonarqube")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    staticCodeAnalysis()
                 }
             }
         }
