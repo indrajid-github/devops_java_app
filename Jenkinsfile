@@ -93,5 +93,21 @@ pipeline{
                 }
             }
         }
+        stage("quality gate: sonarqube")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    def sonarqubeCred = 'jenkins-sonar-token'
+                    qualityGate(sonarqubeCred) 
+                }
+            }
+        }
     }
 }
