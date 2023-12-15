@@ -5,6 +5,10 @@ pipeline{
     {
         label 'maven'
     }
+    tools
+    {
+        maven 'maven3'
+    }
     stages
     {
         stage("Cleanup workspace")
@@ -22,11 +26,23 @@ pipeline{
             steps
             {
                 script
-                {
+                { 
+                    //Calling shared library
                     gitCheckout(
                         branch: "main",
                         url: "https://github.com/indrajid-github/devops_java_app.git"
                     )
+                }
+            }
+        }
+        stage("unit test maven")
+        {
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    mvnTest()
                 }
             }
         }
