@@ -46,5 +46,16 @@ pipeline{
                 }
             }
         }
+        stage("Integration test maven")
+        {
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    mvnIntegration()
+                }
+            }
+        }
     }
 }
