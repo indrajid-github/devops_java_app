@@ -109,5 +109,20 @@ pipeline{
                 }
             }
         }
+        stage("Application build: Maven")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    mvnBuild()
+                }
+            }
+        }
     }
 }
