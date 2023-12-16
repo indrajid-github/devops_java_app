@@ -150,15 +150,18 @@ pipeline{
                 script
                 {
                     //Calling shared library
-                    withDockerRegistry(credentialsId: DOCKER_CRED) 
-                    {
-                        docker_image = docker.build("${IMAGE_NAME}")
-                    }
-                    withDockerRegistry(credentialsId: DOCKER_CRED) 
-                    {
-                        docker_image.push("${IMAGE_TAG}")
-                        docker_image.push 'latest'
-                    }
+                        /*withDockerRegistry(credentialsId: DOCKER_CRED) 
+                        {
+                            docker_image = docker.build("${IMAGE_NAME}")
+                        }
+                        withDockerRegistry(credentialsId: DOCKER_CRED) 
+                        {
+                            docker_image.push("${IMAGE_TAG}")
+                            docker_image.push 'latest'
+                        }*/
+                        dockerProcess(docker_cred: DOCKER_CRED,
+                        image_name: "${IMAGE_NAME}",
+                        image_tag: "${IMAGE_TAG}")
                 }
             }
         }
