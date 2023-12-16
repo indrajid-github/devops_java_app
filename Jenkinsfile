@@ -170,5 +170,21 @@ pipeline{
                 }
             }
         }
+        stage("Scanning docker image: trivy")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+
+                            //docker_image = docker.build("${IMAGE_NAME}")
+                            dockerImageScan("${IMAGE_NAME}", "${IMAGE_TAG}" )
+                }
+            }
+        }
     }
 }
