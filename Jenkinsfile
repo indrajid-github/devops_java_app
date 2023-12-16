@@ -9,9 +9,24 @@ pipeline{
     {
         maven 'maven3'
     }
+    
     parameters
     {
         choice(name: 'activity', choices: ['proceed', 'stop'], description: 'Choose proceed/stop')
+        string(name: 'DOCKER_USER', defaultValue: '', description: 'Enter username for dockerhub')
+        string(name: 'APP_NAME', defaultValue: '', description: 'Enter application name')
+        string(name: 'RELEASE', defaultValue: '', description: 'Enter docker release') 
+    }
+    environment
+    {
+        DOCKER_USER = "${params.DOCKER_USER}"
+        DOCKER_CRED = "dockerhub"
+
+        APP_NAME = "${params.APP_NAME}"
+        RELEASE = "${params.RELEASE}"
+
+        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}" 
     }
     stages
     {
@@ -121,6 +136,29 @@ pipeline{
                 {
                     //Calling shared library
                     mvnBuild()
+                }
+            }
+        }
+        stage("Docker Build")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    withDockerRegistry(credentialsId: DOCKER_CRED) 
+                    {
+                        docker_image = docker.build("${IMAGE_NAME}")
+                    }
+                    withDockerRegistry(credentialsId: DOCKER_CRED) 
+                    {
+                        docker_image.push("${IMAGE_TAG}")
+                        docker_image.push 'latest'
+                    }
                 }
             }
         }
