@@ -159,9 +159,14 @@ pipeline{
                             docker_image.push("${IMAGE_TAG}")
                             docker_image.push 'latest'
                         }*/
-                        dockerProcess(docker_cred: DOCKER_CRED,
+                        /*dockerProcess(docker_cred: DOCKER_CRED,
                         image_name: "${IMAGE_NAME}",
-                        image_tag: "${IMAGE_TAG}")
+                        image_tag: "${IMAGE_TAG}")*/
+                        withDockerRegistry(credentialsId: DOCKER_CRED) 
+                        {
+                            //docker_image = docker.build("${IMAGE_NAME}")
+                            dockerBuild("${IMAGE_NAME}", "${IMAGE_TAG}" )
+                        }
                 }
             }
         }
