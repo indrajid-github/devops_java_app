@@ -187,5 +187,19 @@ pipeline{
                 }
             }
         }
+        stage("Docker image push")
+        {
+            steps
+            {
+                script
+                {
+                    withDockerRegistry(credentialsId: DOCKER_CRED) 
+                        {
+                            //docker_image = docker.build("${IMAGE_NAME}")
+                            dockerImagePush("${IMAGE_NAME}", "${IMAGE_TAG}")
+                        }
+                }
+            }
+        }
     }
 }
