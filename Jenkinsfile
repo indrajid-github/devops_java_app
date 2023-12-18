@@ -13,12 +13,13 @@ pipeline{
     parameters
     {
         choice(name: 'activity', choices: ['proceed', 'stop'], description: 'Choose proceed/stop')
-        string(name: 'DOCKER_USER', defaultValue: '', description: 'Enter username for dockerhub')
-        string(name: 'APP_NAME', defaultValue: '', description: 'Enter application name')
-        string(name: 'RELEASE', defaultValue: '', description: 'Enter docker release') 
+        string(name: 'DOCKER_USER', defaultValue: 'uriyapraba', description: 'Enter username for dockerhub')
+        string(name: 'APP_NAME', defaultValue: 'infosys-webapp', description: 'Enter application name')
+        string(name: 'RELEASE', defaultValue: '1.0.0', description: 'Enter docker release') 
     }
     environment
     {
+        //Environments definded for docker build
         DOCKER_USER = "${params.DOCKER_USER}"
         DOCKER_CRED = "dockerhub"
 
