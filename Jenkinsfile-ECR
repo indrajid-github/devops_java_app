@@ -1,0 +1,174 @@
+@Library('my-shared-lib') _
+
+pipeline{
+    agent
+    {
+        label 'maven'
+    }
+    tools
+    {
+        maven 'maven3'
+    }
+    
+    parameters
+    {
+        choice(name: 'activity', choices: ['proceed', 'stop'], description: 'Choose proceed/stop')
+        string(name: 'AWS_ACCOUNT_ID', defaultValue: '639323015973 ', description: 'Enter aws account id')
+        string(name: 'REGION', defaultValue: 'ap-southeast-2', description: 'Enter region name')
+        string(name: 'REPO_NAME', defaultValue: 'indrajid', description: 'Enter repo name') 
+    }
+    /*environment
+    {
+        //Environments definded for docker build
+        DOCKER_USER = "${params.DOCKER_USER}"
+        DOCKER_CRED = "dockerhub"
+
+        APP_NAME = "${params.APP_NAME}"
+        RELEASE = "${params.RELEASE}"
+
+        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}" 
+    }*/
+    stages
+    {
+        stage("Cleanup workspace")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    cleanWs()
+                }
+            }
+        }
+        stage("Pulling SC from GIT")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                { 
+                    //Calling shared library
+                    gitCheckout(
+                        branch: "main",
+                        url: "https://github.com/indrajid-github/devops_java_app.git"
+                    )
+                }
+            }
+        }
+        stage("unit test maven")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    mvnTest()
+                }
+            }
+        }
+        stage("Integration test maven")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    mvnIntegration()
+                }
+            }
+        }
+        stage("static code analysis: sonarqube")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    def sonarqubeCred = 'jenkins-sonar-token'
+                    staticCodeAnalysis(sonarqubeCred) 
+                }
+            }
+        }
+        stage("quality gate: sonarqube")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    def sonarqubeCred = 'jenkins-sonar-token'
+                    qualityGate(sonarqubeCred) 
+                }
+            }
+        }
+        stage("Application build: Maven")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    mvnBuild()
+                }
+            }
+        }
+        stage("Building docker image: ECR")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    dockerBuild("${params.AWS_ACCOUNT_ID}", "${params.REGION}", "${params.REPO_NAME}")
+                }
+            }
+        }
+        stage("Scanning docker image: Trivy")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    ddockerImageScan("${params.AWS_ACCOUNT_ID}", "${params.REGION}", "${params.REPO_NAME}")
+                }
+            }
+        }        
+    }
+}
