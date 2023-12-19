@@ -166,7 +166,22 @@ pipeline{
                 script
                 {
                     //Calling shared library
-                    ddockerImageScan("${params.AWS_ACCOUNT_ID}", "${params.REGION}", "${params.REPO_NAME}")
+                    dockerImageScan("${params.AWS_ACCOUNT_ID}", "${params.REGION}", "${params.REPO_NAME}")
+                }
+            }
+        }
+        stage("Pusing docker image: ECR")
+        {
+            when
+            {
+                expression { params.activity == 'proceed' }
+            }
+            steps
+            {
+                script
+                {
+                    //Calling shared library
+                    dockerImagePush("${params.AWS_ACCOUNT_ID}", "${params.REGION}", "${params.REPO_NAME}")
                 }
             }
         }        
